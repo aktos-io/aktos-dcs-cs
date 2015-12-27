@@ -1,4 +1,5 @@
 ﻿using NetMQ;
+using NetMQ.Sockets;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace ZeroMQPubSubExample
     {
         BackgroundWorker sub_worker;
         public delegate void callback(object sender, object arg);
-        public event callback event_receive; 
+        public event callback event_receive;
         public ActorSubscriber()
         {
             sub_worker = new BackgroundWorker();
@@ -22,9 +23,9 @@ namespace ZeroMQPubSubExample
         }
         private void on_receive(object msg)
         {
-            if(event_receive != null)
+            if (event_receive != null)
             {
-                event_receive(this, msg); 
+                event_receive(this, msg);
             }
         }
         private void Sub_worker_DoWork(object sender, DoWorkEventArgs e)
@@ -36,38 +37,16 @@ namespace ZeroMQPubSubExample
                 sub.Subscribe("");
                 while (true)
                 {
-                    string received = sub.ReceiveFrameString(); 
-                    Console.WriteLine("From Server: {0}", received);
+                    string received = sub.ReceiveFrameString();
+                    //Console.WriteLine("From Server: {0}", received);
+                    on_receive(received);
                 }
             }
         }
-        
-    }
-    class Actor
-    {
-        ActorSubscriber sub = new ActorSubscriber(); 
-        public Actor()
-        {
-            sub.event_receive += on_receive;
-        }
 
-        private void on_receive(object sender, object arg)
-        {
-            throw new NotImplementedException();
-        }
     }
     class ActorPublisher
     {
-
-        private ActorPublisher()
-        {
-
-        }
-
-    }
-    class Program
-    {
-
         private static double unix_timestamp(DateTime value)
         {
             //create Timespan by subtracting the value provided from
@@ -80,7 +59,7 @@ namespace ZeroMQPubSubExample
 
         private static double unix_timestamp_now()
         {
-            return unix_timestamp(DateTime.UtcNow); 
+            return unix_timestamp(DateTime.UtcNow);
         }
 
         public static string random_string(int length)
@@ -91,44 +70,106 @@ namespace ZeroMQPubSubExample
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        static void Main(string[] args)
+        string random_sender_id;
+        int i = 0;
+        PublisherSocket pub;
+        public ActorPublisher()
         {
-            Actor a = new Actor();
-            using (var context = NetMQContext.Create())
-            using (var pub = context.CreatePublisherSocket())
+            random_sender_id = random_string(5);
+            var context = NetMQContext.Create();
+            pub = context.CreatePublisherSocket();
+            pub.Connect("tcp://localhost:5012");
+        }
+        public void send(object msg)
+        {
+            Dictionary<string, object> telegram = new Dictionary<string, object>();
+            telegram.Add("timestamp", unix_timestamp_now());
+            telegram.Add("msg_id", random_sender_id + "." + i++);
+            List<string> sender_list = new List<string>();
+            sender_list.Add(random_sender_id);
+            telegram.Add("sender", sender_list);
+            Dictionary<string, object> topic = new Dictionary<string, object>();
+            Dictionary<string, object> payload = new Dictionary<string, object>();
+            payload.Add("text", "hello from new implementation....");
+            topic.Add("PongMessage", payload);
+            telegram.Add("payload", topic);
+            string json = JsonConvert.SerializeObject(telegram);
+            //System.Console.WriteLine("serialized object: {0}", json); 
+
+
+            pub.SendFrame(json);
+            System.Threading.Thread.Sleep(5000);
+        }
+    }
+    class Actor
+    {
+        ActorSubscriber sub = new ActorSubscriber();
+        ActorPublisher pub = new ActorPublisher();
+        BackgroundWorker action_worker;
+
+        public Actor()
+        {
+            sub.event_receive += on_receive_event;
+            action_worker = new BackgroundWorker();
+            action_worker.DoWork += Action_DoWork;
+            action_worker.RunWorkerAsync(); 
+        }
+
+        private void Action_DoWork(object sender, DoWorkEventArgs e)
+        {
+            action();
+        }
+
+        public virtual void action()
+        {
+
+        }
+
+        private void on_receive_event(object sender, object arg)
+        {
+            receive(arg);
+        }
+        public virtual void receive(object msg)
+        {
+            Console.WriteLine("Actor has written to the console... {0}", msg);
+
+
+        }
+        public void send(object msg)
+        {
+            pub.send(msg);
+        }
+    }
+
+        class RFIDReader : Actor
+        {
+            public override void receive(object msg)
             {
-                pub.Connect("tcp://localhost:5012");
-                int i = 0;
-                string random_sender_id = random_string(5);
+                Console.WriteLine("RFID received message: {0}", msg); 
+            }
+
+            public override void action()
+            {
                 while (true)
                 {
-                    
-                    Dictionary<string, object> telegram = new Dictionary<string, object>();
-                    telegram.Add("timestamp", unix_timestamp_now());
-                    telegram.Add("msg_id", random_sender_id + "." + i++);
-                    List<string> sender_list = new List<string>();
-                    sender_list.Add(random_sender_id); 
-                    telegram.Add("sender", sender_list); 
-                    Dictionary<string, object> topic = new Dictionary<string, object>();
-                    Dictionary<string, object> payload = new Dictionary<string, object>();
-                    payload.Add("text", "hello from new implementation....");
-                    topic.Add("PongMessage", payload);
-                    telegram.Add("payload", topic); 
-                    string json = JsonConvert.SerializeObject(telegram);
-                    //System.Console.WriteLine("serialized object: {0}", json); 
-
-
-                    pub.SendFrame(json);
+                    Console.WriteLine("RFID is in action!");
                     System.Threading.Thread.Sleep(1000);
-
-                    //break;
                 }
+            }
+        }
+        class Program
+        {
+            
+            static void Main(string[] args)
+            {
+                Actor a = new RFIDReader();
+
+                a.send("naber");
 
                 Console.WriteLine();
                 Console.Write("Press any key to exit...");
                 Console.ReadKey();
             }
-
         }
     }
-}
+
