@@ -9,6 +9,23 @@ namespace ZeroMQPubSubExample
 {
     class Program
     {
+
+
+        private static double unix_timestamp(DateTime value)
+        {
+            //create Timespan by subtracting the value provided from
+            //the Unix Epoch
+            TimeSpan span = (value - new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime());
+
+            //return the total seconds (which is a UNIX timestamp)
+            return (double)span.TotalSeconds + 7200;
+        }
+
+        private static double unix_timestamp_now()
+        {
+            return unix_timestamp(DateTime.UtcNow); 
+        }
+
         static void Main(string[] args)
         {
 
@@ -20,8 +37,13 @@ namespace ZeroMQPubSubExample
                 sub.Connect("tcp://localhost:5013");
                 while(true)
                 {
+                    
                     System.Threading.Thread.Sleep(1000);
-                    string raw_msg = "{ \"timestamp\": 1451168495.814, \"msg_id\": \"MZ9YV.6\", \"sender\": [\"MZ9YV\", \"cKsNg\"], \"payload\": {\"PongMessage\": {\"text\": \"Hello ponger, this is pinger 1!\"}}}";
+                    string timestamp = unix_timestamp_now().ToString().Replace(',', '.'); 
+                    string raw_msg = "{ \"timestamp\": " + timestamp + ", \"msg_id\": \"MZ9YV.6\", \"sender\": [\"MZ9YV\", \"cKsNg\"], \"payload\": {\"PongMessage\": {\"text\": \"Hello ponger, this is pinger 1!\"}}}";
+                    //byte[] bytes = Encoding.Default.GetBytes(raw_msg);
+                    //raw_msg = Encoding.UTF8.GetString(bytes);
+
                     pub.SendFrame(raw_msg);
                     //break;
                 }
