@@ -1,4 +1,5 @@
 ﻿using NetMQ;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,13 +22,27 @@ namespace ZeroMQPubSubExample
 
         private void Sub_worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            while (true)
+            using (var context = NetMQContext.Create())
+            using (var sub = context.CreateSubscriberSocket())
             {
-                Console.WriteLine("naber");
-                System.Threading.Thread.Sleep(1000);
+                sub.Connect("tcp://localhost:5013");
+                sub.Subscribe("");
+                while (true)
+                {
+                    string received = sub.ReceiveFrameString(); 
+                    Console.WriteLine("From Server: {0}", received);
+                }
             }
         }
         
+    }
+    class ActorPublisher
+    {
+        private ActorPublisher()
+        {
+
+        }
+
     }
     class Program
     {
@@ -52,11 +67,8 @@ namespace ZeroMQPubSubExample
             ActorSubscriber a = new ActorSubscriber();
             using (var context = NetMQContext.Create())
             using (var pub = context.CreatePublisherSocket())
-            using (var sub = context.CreateSubscriberSocket())
             {
                 pub.Connect("tcp://localhost:5012");
-                sub.Connect("tcp://localhost:5013");
-                sub.Subscribe(""); 
                 int i = 0; 
                 while(true)
                 {
@@ -65,10 +77,23 @@ namespace ZeroMQPubSubExample
                     string raw_msg = "{ \"timestamp\": " + timestamp + ", \"msg_id\": \"MZ9YV."+ i++ +"\", \"sender\": [\"MZ9YV\", \"cKsNg\"], \"payload\": {\"PongMessage\": {\"text\": \"Hello ponger, this is pinger 1!\"}}}";
                     //byte[] bytes = Encoding.Default.GetBytes(raw_msg);
                     //raw_msg = Encoding.UTF8.GetString(bytes);
+                    Dictionary<string, object> telegram = new Dictionary<string, object>();
+                    telegram.Add("timestamp", unix_timestamp_now());
+                    telegram.Add("msg_id", "abcd" + "." + i++);
+                    List<string> sender_list = new List<string>();
+                    sender_list.Add("my-unique-sender"); 
+                    telegram.Add("sender", sender_list); 
+                    Dictionary<string, object> topic = new Dictionary<string, object>();
+                    Dictionary<string, object> payload = new Dictionary<string, object>();
+                    payload.Add("text", "hello from new implementation....");
+                    topic.Add("PongMessage", payload);
+                    telegram.Add("payload", topic); 
+                    string json = JsonConvert.SerializeObject(telegram);
+                    //System.Console.WriteLine("serialized object: {0}", json); 
 
-                    pub.SendFrame(raw_msg);
-                    Console.WriteLine("From Server: {0}", sub.ReceiveFrameString());
-                    System.Threading.Thread.Sleep(10000);
+
+                    pub.SendFrame(json);
+                    System.Threading.Thread.Sleep(1000);
 
                     //break;
                 }
