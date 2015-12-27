@@ -12,14 +12,21 @@ namespace ZeroMQPubSubExample
     class ActorSubscriber
     {
         BackgroundWorker sub_worker;
-
+        public delegate void callback(object sender, object arg);
+        public event callback event_receive; 
         public ActorSubscriber()
         {
             sub_worker = new BackgroundWorker();
             sub_worker.DoWork += Sub_worker_DoWork;
             sub_worker.RunWorkerAsync();
         }
-
+        private void on_receive(object msg)
+        {
+            if(event_receive != null)
+            {
+                event_receive(this, msg); 
+            }
+        }
         private void Sub_worker_DoWork(object sender, DoWorkEventArgs e)
         {
             using (var context = NetMQContext.Create())
@@ -36,8 +43,22 @@ namespace ZeroMQPubSubExample
         }
         
     }
+    class Actor
+    {
+        ActorSubscriber sub = new ActorSubscriber(); 
+        public Actor()
+        {
+            sub.event_receive += on_receive;
+        }
+
+        private void on_receive(object sender, object arg)
+        {
+            throw new NotImplementedException();
+        }
+    }
     class ActorPublisher
     {
+
         private ActorPublisher()
         {
 
@@ -72,22 +93,18 @@ namespace ZeroMQPubSubExample
 
         static void Main(string[] args)
         {
-            ActorSubscriber a = new ActorSubscriber();
+            Actor a = new Actor();
             using (var context = NetMQContext.Create())
             using (var pub = context.CreatePublisherSocket())
             {
                 pub.Connect("tcp://localhost:5012");
-                int i = 0; 
-                while(true)
+                int i = 0;
+                string random_sender_id = random_string(5);
+                while (true)
                 {
                     
-                    string timestamp = unix_timestamp_now().ToString().Replace(',', '.'); 
-                    string raw_msg = "{ \"timestamp\": " + timestamp + ", \"msg_id\": \"MZ9YV."+ i++ +"\", \"sender\": [\"MZ9YV\", \"cKsNg\"], \"payload\": {\"PongMessage\": {\"text\": \"Hello ponger, this is pinger 1!\"}}}";
-                    //byte[] bytes = Encoding.Default.GetBytes(raw_msg);
-                    //raw_msg = Encoding.UTF8.GetString(bytes);
                     Dictionary<string, object> telegram = new Dictionary<string, object>();
                     telegram.Add("timestamp", unix_timestamp_now());
-                    string random_sender_id = random_string(5);
                     telegram.Add("msg_id", random_sender_id + "." + i++);
                     List<string> sender_list = new List<string>();
                     sender_list.Add(random_sender_id); 
