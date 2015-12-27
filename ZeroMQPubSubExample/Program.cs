@@ -62,6 +62,14 @@ namespace ZeroMQPubSubExample
             return unix_timestamp(DateTime.UtcNow); 
         }
 
+        public static string random_string(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
         static void Main(string[] args)
         {
             ActorSubscriber a = new ActorSubscriber();
@@ -79,9 +87,10 @@ namespace ZeroMQPubSubExample
                     //raw_msg = Encoding.UTF8.GetString(bytes);
                     Dictionary<string, object> telegram = new Dictionary<string, object>();
                     telegram.Add("timestamp", unix_timestamp_now());
-                    telegram.Add("msg_id", "abcd" + "." + i++);
+                    string random_sender_id = random_string(5);
+                    telegram.Add("msg_id", random_sender_id + "." + i++);
                     List<string> sender_list = new List<string>();
-                    sender_list.Add("my-unique-sender"); 
+                    sender_list.Add(random_sender_id); 
                     telegram.Add("sender", sender_list); 
                     Dictionary<string, object> topic = new Dictionary<string, object>();
                     Dictionary<string, object> payload = new Dictionary<string, object>();
