@@ -35,12 +35,13 @@ namespace ZeroMQPubSubExample
             {
                 pub.Connect("tcp://localhost:5012");
                 sub.Connect("tcp://localhost:5013");
+                int i = 0; 
                 while(true)
                 {
                     
                     System.Threading.Thread.Sleep(1000);
                     string timestamp = unix_timestamp_now().ToString().Replace(',', '.'); 
-                    string raw_msg = "{ \"timestamp\": " + timestamp + ", \"msg_id\": \"MZ9YV.6\", \"sender\": [\"MZ9YV\", \"cKsNg\"], \"payload\": {\"PongMessage\": {\"text\": \"Hello ponger, this is pinger 1!\"}}}";
+                    string raw_msg = "{ \"timestamp\": " + timestamp + ", \"msg_id\": \"MZ9YV."+ i++ +"\", \"sender\": [\"MZ9YV\", \"cKsNg\"], \"payload\": {\"PongMessage\": {\"text\": \"Hello ponger, this is pinger 1!\"}}}";
                     //byte[] bytes = Encoding.Default.GetBytes(raw_msg);
                     //raw_msg = Encoding.UTF8.GetString(bytes);
 
