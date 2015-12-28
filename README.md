@@ -8,3 +8,13 @@ This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platfo
 2. Run `aktos-dcs/examples/ponger.py`
 3. Run this solution 
 4. See if they are pinging and ponging each other. 
+
+# Usage
+
+1. Create a new project 
+2. In "Solution Explorer", click `Add -> Solution`, browse to select `aktos-dcs-cs/aktos-dcs-cs/aktos-dcs-cs.csproj`
+3. In "Solution Explorer", in your new project, click "add references", navigate to "projects/solution" on the left bar, add "aktos_dcs_cs"
+4. In your project, add `using aktos_dcs_cs;` line at the top of the file. 
+5. Create any number of classes which inherit from `Actor`
+6. Initialize objects from these classes
+7. Add `Actor.wait_all()` at the end of program
