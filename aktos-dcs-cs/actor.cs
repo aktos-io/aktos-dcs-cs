@@ -139,9 +139,17 @@ namespace aktos_dcs_cs
         {
             pub.send(msg);
         }
+        public static void wait_all()
+        {
+            while (true)
+            {
+                System.Threading.Thread.Sleep(999999);
+            }
+        }
+
     }
 
-        class Test : Actor
+    class Test : Actor
         {
             public override void receive(object msg)
             {
