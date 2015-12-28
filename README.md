@@ -1,5 +1,4 @@
 # aktos-dcs-cs
-C# port of aktos-dcs framework
 
 This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platform. 
 
