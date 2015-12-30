@@ -47,17 +47,18 @@ namespace aktos_dcs_cs
     }
     class ActorPublisher
     {
-        private static double unix_timestamp(DateTime value)
+        private static string unix_timestamp(DateTime value)
         {
             //create Timespan by subtracting the value provided from
             //the Unix Epoch
             TimeSpan span = (value - new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime());
 
             //return the total seconds (which is a UNIX timestamp)
-            return (double)span.TotalSeconds + 7200;
+            double t = (double)span.TotalSeconds + 7200;
+            return t.ToString().Replace(",", "."); 
         }
 
-        private static double unix_timestamp_now()
+        private static string unix_timestamp_now()
         {
             return unix_timestamp(DateTime.UtcNow);
         }
@@ -82,23 +83,18 @@ namespace aktos_dcs_cs
         }
         public void send(object msg)
         {
-            Dictionary<string, object> telegram = new Dictionary<string, object>();
-            telegram.Add("timestamp", unix_timestamp_now());
-            telegram.Add("msg_id", random_sender_id + "." + i++);
-            List<string> sender_list = new List<string>();
-            sender_list.Add(random_sender_id);
-            telegram.Add("sender", sender_list);
-            Dictionary<string, object> topic = new Dictionary<string, object>();
-            Dictionary<string, object> payload = new Dictionary<string, object>();
-            payload.Add("text", "hello from new implementation....");
-            topic.Add("PongMessage", payload);
-            telegram.Add("payload", topic);
-            string json = JsonConvert.SerializeObject(telegram);
+            Console.WriteLine("Msg to send: {0}", msg);
+            string msg_id = random_sender_id + "." + i++;
+            string telegram = @"
+                {{""timestamp"": {0}, ""msg_id"": ""{1}"", ""sender"": [""{2}""], ""payload"": {3} }}
+            ";
+            string json = string.Format(telegram, unix_timestamp_now(), msg_id, random_sender_id, msg);
+            //string json = JsonConvert.SerializeObject(telegram);
             //System.Console.WriteLine("serialized object: {0}", json); 
 
+            json = json.Replace("\r", "").Replace("\n", "").Trim(); 
 
             pub.SendFrame(json);
-            System.Threading.Thread.Sleep(5000);
         }
     }
     public class Actor
