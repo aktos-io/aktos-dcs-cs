@@ -16,5 +16,8 @@ This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platfo
 3. In "Solution Explorer", in your new project, click "add references", navigate to "projects/solution" on the left bar, add "aktos_dcs_cs"
 4. In your project, add `using aktos_dcs_cs;` line at the top of the file. 
 5. Create any number of classes which are inherited from `Actor`
-6. Initialize objects from these classes
-7. Add `Actor.wait_all()` at the end of program
+6. Do your blocker works in `public override action(){ ... }` method
+7. Send any message to others via `send(object)` method
+8. Receive others' messages via `public override receive(message){ ... }` method
+9. Initialize your objects from these `Actor` based classes
+10. Add `Actor.wait_all()` at the end of program
