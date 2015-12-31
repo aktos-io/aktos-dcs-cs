@@ -21,3 +21,4 @@ This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platfo
 8. Receive others' messages via `public override receive(message){ ... }` method
 9. Initialize your objects from these `Actor` based classes
 10. Add `Actor.wait_all()` at the end of program
+11. See your objects are messaging to each other. 
