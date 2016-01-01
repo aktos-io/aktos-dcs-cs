@@ -44,6 +44,7 @@ namespace aktos_dcs_cs
             }
         }
 
+
     }
     class ActorPublisher
     {
@@ -71,30 +72,34 @@ namespace aktos_dcs_cs
               .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        string random_sender_id;
+        public string actor_id;
         int i = 0;
         PublisherSocket pub;
         public ActorPublisher()
         {
-            random_sender_id = random_string(5);
+            actor_id = random_string(5);
             var context = NetMQContext.Create();
             pub = context.CreatePublisherSocket();
             pub.Connect("tcp://localhost:5012");
         }
         public void send(object msg)
         {
-            Console.WriteLine("Msg to send: {0}", msg);
-            string msg_id = random_sender_id + "." + i++;
-            string telegram = @"
+            //string message = JsonConvert.SerializeObject(msg);
+            //Console.WriteLine("Msg to send: {0}", message);
+            if (true)
+            {
+                string msg_id = actor_id + "." + i++;
+                string telegram = @"
                 {{""timestamp"": {0}, ""msg_id"": ""{1}"", ""sender"": [""{2}""], ""payload"": {3} }}
             ";
-            string json = string.Format(telegram, unix_timestamp_now(), msg_id, random_sender_id, msg);
-            //string json = JsonConvert.SerializeObject(telegram);
-            //System.Console.WriteLine("serialized object: {0}", json); 
+                string json = string.Format(telegram, unix_timestamp_now(), msg_id, actor_id, msg);
+                //string json = JsonConvert.SerializeObject(telegram);
+                //System.Console.WriteLine("serialized object: {0}", json); 
 
-            json = json.Replace("\r", "").Replace("\n", "").Trim(); 
+                json = json.Replace("\r", "").Replace("\n", "").Trim();
 
-            pub.SendFrame(json);
+                pub.SendFrame(json);
+            }
         }
     }
     public class Actor
@@ -102,6 +107,8 @@ namespace aktos_dcs_cs
         ActorSubscriber sub = new ActorSubscriber();
         ActorPublisher pub = new ActorPublisher();
         BackgroundWorker action_worker;
+        List<object> filter_history = new List<object>();
+
 
         public Actor()
         {
@@ -123,13 +130,47 @@ namespace aktos_dcs_cs
 
         private void on_receive_event(object sender, object arg)
         {
-            receive(arg);
+            if (filter_msg(arg))
+            {
+                receive(arg);
+            }
+        }
+
+        private bool filter_msg(object msg)
+        {
+            /* 
+
+            drop message if:
+                
+                * this actor is in sender list (this is a short circuit message) 
+                * that or a newer message is received already (message is duplicate or too old) 
+                
+            if message is not dropped, add the message into `message_history` 
+
+            */
+            
+            Dictionary <string, object> msg_dict = JsonConvert.DeserializeObject<Dictionary<string, object>>((string)msg);
+
+            string msg_id = (string) msg_dict["msg_id"];
+            Newtonsoft.Json.Linq.JArray sender = (Newtonsoft.Json.Linq.JArray) msg_dict["sender"];
+
+
+            // check if this is short circuit message: 
+            foreach(string s in sender) {
+                if(s == pub.actor_id)
+                {
+                    Console.WriteLine("dropping short circuit message... {0}", msg);
+                }
+            }
+
+
+            
+            Console.WriteLine("got message: {0}", msg_dict["timestamp"]); 
+            return false; 
         }
         public virtual void receive(object msg)
         {
-            Console.WriteLine("Actor has written to the console... {0}", msg);
-
-
+            Console.WriteLine("Actor received a message: {0}", msg);
         }
         public void send(object msg)
         {

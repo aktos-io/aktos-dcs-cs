@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using aktos_dcs_cs; 
+using aktos_dcs_cs;
 
 namespace pinger
 {
-
     class Pinger : Actor
     {
         public override void action()
