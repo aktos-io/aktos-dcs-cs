@@ -107,7 +107,8 @@ namespace aktos_dcs_cs
         ActorSubscriber sub = new ActorSubscriber();
         ActorPublisher pub = new ActorPublisher();
         BackgroundWorker action_worker;
-        List<object> filter_history = new List<object>();
+        List<List<string>> filter_history = new List<List<string>>();
+        public string actor_id; 
 
 
         public Actor()
@@ -115,7 +116,8 @@ namespace aktos_dcs_cs
             sub.event_receive += on_receive_event;
             action_worker = new BackgroundWorker();
             action_worker.DoWork += Action_DoWork;
-            action_worker.RunWorkerAsync(); 
+            action_worker.RunWorkerAsync();
+            actor_id = pub.actor_id; 
         }
 
         private void Action_DoWork(object sender, DoWorkEventArgs e)
@@ -157,16 +159,47 @@ namespace aktos_dcs_cs
 
             // check if this is short circuit message: 
             foreach(string s in sender) {
-                if(s == pub.actor_id)
+                if(s == actor_id)
                 {
-                    Console.WriteLine("dropping short circuit message... {0}", msg);
+                    //Console.WriteLine("dropping short circuit message... {0}", msg);
+                    return false; 
                 }
             }
 
+            // check if this or newer message has been received already 
+            for(int i = 0; i < filter_history.Count; i++)
+            {
+                // column order: `creator_id`, `sequence number`
+                if ((string) filter_history[i][0] == msg_id.Split('.')[0])
+                {
+                    // a message has been received from this actor already. check sequence number. 
+                    int sequence_number;
+                    if(Int32.TryParse(msg_id.Split('.')[1], out sequence_number))
+                    {
+                        int tmp_seq_num;
+                        Int32.TryParse(filter_history[i][1], out tmp_seq_num); 
+                        if (sequence_number < tmp_seq_num)
+                        {
+                            Console.WriteLine("CAUTION: dropping old message... {0}", msg);
+                            return false; 
+                        }else if (sequence_number == tmp_seq_num)
+                        {
+                            //Console.WriteLine("dropping duplicate message... {0}", msg);
+                            return false; 
+                        }
+                        else
+                        {
+                            // message is valid. update last received message sequence number
+                            filter_history[i][1] = sequence_number.ToString();
+                            return true; 
+                        }
+                    }
+                }
+            }
 
-            
-            Console.WriteLine("got message: {0}", msg_dict["timestamp"]); 
-            return false; 
+            // if code reaches here, this sender is new, so append to filter history. 
+            filter_history.Add(msg_id.Split('.').ToList());
+            return true; 
         }
         public virtual void receive(object msg)
         {
