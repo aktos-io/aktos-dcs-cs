@@ -19,6 +19,8 @@ This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platfo
 6. Do your blocker works in `public override action(){ ... }` method
 7. Send any message to others via `send(object)` method
 8. Receive others' messages via `public override receive(message){ ... }` method
-9. Initialize your objects from these `Actor` based classes
-10. Add `Actor.wait_all()` at the end of program
-11. See your objects are messaging to each other. 
+9. Receive others' messages via `public handle_SUBJECT(message){...}` methods if you know the subject. 
+10. DO_NOT perform blocker operations in receiver methods. 
+11. Initialize your objects from these `Actor` based classes
+12. Add `Actor.wait_all()` at the end of program
+13. See your objects are messaging to each other. 
