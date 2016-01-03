@@ -1,6 +1,7 @@
 ﻿using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -132,13 +133,20 @@ namespace aktos_dcs_cs
 
         private void on_receive_event(object sender, object arg)
         {
-            if (filter_msg(arg))
+            Dictionary<string, object> msg_dict = JsonConvert.DeserializeObject<Dictionary<string, object>>((string)arg);
+            if (filter_msg(msg_dict))
             {
-                receive(arg);
+                
+                List<string> keyList = new List<string>(((JObject)msg_dict["payload"]).ToObject<Dictionary<string, object>>().Keys);
+                foreach (string key in keyList)
+                {
+                    Console.WriteLine("Topic of incoming message: {0}", key);
+                }
+                receive(msg_dict);
             }
         }
 
-        private bool filter_msg(object msg)
+        private bool filter_msg(Dictionary<string, object> msg_dict)
         {
             /* 
 
@@ -151,8 +159,6 @@ namespace aktos_dcs_cs
 
             */
             
-            Dictionary <string, object> msg_dict = JsonConvert.DeserializeObject<Dictionary<string, object>>((string)msg);
-
             string msg_id = (string) msg_dict["msg_id"];
             Newtonsoft.Json.Linq.JArray sender = (Newtonsoft.Json.Linq.JArray) msg_dict["sender"];
 
@@ -180,7 +186,7 @@ namespace aktos_dcs_cs
                         Int32.TryParse(filter_history[i][1], out tmp_seq_num); 
                         if (sequence_number < tmp_seq_num)
                         {
-                            Console.WriteLine("CAUTION: dropping old message... {0}", msg);
+                            Console.WriteLine("CAUTION: dropping old message... {0}", msg_dict);
                             return false; 
                         }else if (sequence_number == tmp_seq_num)
                         {
@@ -201,7 +207,7 @@ namespace aktos_dcs_cs
             filter_history.Add(msg_id.Split('.').ToList());
             return true; 
         }
-        public virtual void receive(object msg)
+        public virtual void receive(Dictionary<string, object> msg)
         {
             Console.WriteLine("Actor received a message: {0}", msg);
         }
@@ -221,7 +227,7 @@ namespace aktos_dcs_cs
 
     class Test : Actor
         {
-            public override void receive(object msg)
+            public override void receive(Dictionary<string, object> msg)
             {
                 Console.WriteLine("RFID received message: {0}", msg); 
             }

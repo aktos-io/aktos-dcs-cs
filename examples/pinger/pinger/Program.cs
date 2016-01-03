@@ -25,6 +25,14 @@ namespace pinger
                 send(msg_ser);
             }
         }
+        public override void receive(Dictionary<string, object> msg)
+        {
+
+
+
+
+
+        }
     }
     class Program
     {
