@@ -17,10 +17,17 @@ namespace ponger
         public override void receive(Dictionary<string, object> msg)
         {
             Console.WriteLine("Received a message: {0}", msg);
-            System.Threading.Thread.Sleep(3000);
+        }
+        public void handle_PongMessage(Dictionary<string, object> msg)
+        {
+            Console.WriteLine("Pong message has been received: {0}", msg["text"]);
             send(@"
-            {""PingMessage"": {""text"": ""this is ponger in csharp, hello pinger!""}}
-            "); 
+                {""PingMessage"": {""text"": ""this is ponger in csharp, hello pinger!""}}
+            ");
+        }
+        public void handle_PeriodicPongMessage(Dictionary<string, object> msg)
+        {
+            Console.WriteLine("Periodic Pong Message is received: {0}", msg["text"]); 
         }
     }
     class Program

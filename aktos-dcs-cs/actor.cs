@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection; 
 
 namespace aktos_dcs_cs
 {
@@ -136,13 +137,25 @@ namespace aktos_dcs_cs
             Dictionary<string, object> msg_dict = JsonConvert.DeserializeObject<Dictionary<string, object>>((string)arg);
             if (filter_msg(msg_dict))
             {
-                
-                List<string> keyList = new List<string>(((JObject)msg_dict["payload"]).ToObject<Dictionary<string, object>>().Keys);
+                Dictionary<string, object> payload_dict = ((JObject)msg_dict["payload"]).ToObject<Dictionary<string, object>>(); 
+                List<string> keyList = new List<string>(payload_dict.Keys);
                 foreach (string key in keyList)
                 {
-                    Console.WriteLine("Topic of incoming message: {0}", key);
+                    //Console.WriteLine("Topic of incoming message: {0}", key);
+
+                    // if there is a topic handler (handle_SUBJECT function), 
+                    // pass message to that function. else, pass msg to default receive function
+                    try
+                    {
+                        MethodInfo handler_func = this.GetType().GetMethod("handle_" + key);
+                        handler_func.Invoke(this, new object[] { ((JObject)payload_dict[key]).ToObject<Dictionary<string, object>>() });  
+                    }
+                    catch (Exception e)
+                    {
+                        //Console.WriteLine("exception: {0}", e); 
+                        receive(msg_dict);
+                    }
                 }
-                receive(msg_dict);
             }
         }
 

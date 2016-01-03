@@ -11,28 +11,39 @@ namespace pinger
     {
         public override void action()
         {
+            string msg_ser = @"
+                    {""PongMessage"": 
+                        {""text"": ""this is a periodic PongMessage message from csharp implementation""}
+                    }
+                ";
+            send(msg_ser);
+
             while (true)
             {
                 Console.WriteLine("Pinger is in action! ");
                 System.Threading.Thread.Sleep(2000);
 
-                string msg_ser = @"
-                    {""PongMessage"": 
-                        {""text"": ""this is proper message from csharp implementation""}
+                msg_ser = @"
+                    {""PeriodicPongMessage"": 
+                        {""text"": ""this is a periodic PongMessage message from csharp implementation""}
                     }
-                "; 
-
+                ";
                 send(msg_ser);
             }
         }
-        public override void receive(Dictionary<string, object> msg)
+        public void handle_PingMessage(Dictionary<string, object> msg)
         {
+            Console.WriteLine("Pinger handled PingMessage: {0} ", msg["text"]);
 
-
-
-
-
+            string msg_ser = @"
+                    {""PongMessage"": 
+                        {""text"": ""this is proper message from csharp implementation""}
+                    }
+                ";
+            System.Threading.Thread.Sleep(2000);
+            send(msg_ser);
         }
+        
     }
     class Program
     {
