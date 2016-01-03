@@ -4,10 +4,15 @@ This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platfo
 
 # Testing 
 
-1. Download and install [aktos-dcs](https://github.com/ceremcem/aktos-dcs)
-2. Run `aktos-dcs/examples/ponger.py`
-3. Run `aktos-dcs-cs/examples/pinger` solution
-4. See if they are pinging and ponging each other. 
+1. Between C# applications: 
+   1. run `examples/ponger` solution. 
+   2. run `examples/pinger` solution 
+   3. see they are messaging.
+2. Between C# and Python applications: 
+  1. Download and install [aktos-dcs](https://github.com/ceremcem/aktos-dcs)
+  2. Run `aktos-dcs/examples/ponger.py`
+  3. Run `aktos-dcs-cs/examples/pinger` solution
+  4. See if they are pinging and ponging each other. 
 
 # Usage
 
