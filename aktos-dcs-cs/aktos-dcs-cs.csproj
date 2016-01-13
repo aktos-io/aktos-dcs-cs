@@ -40,11 +40,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="NetMQ, Version=3.3.2.2, Culture=neutral, PublicKeyToken=a6decef4ddc58b3a, processorArchitecture=MSIL">
-      <HintPath>..\examples\pinger_ponger\packages\NetMQ.3.3.2.2\lib\net40\NetMQ.dll</HintPath>
+      <HintPath>..\examples\gui-example\packages\NetMQ.3.3.2.2\lib\net40\NetMQ.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\rfid-example\aktos-dcs-cs\examples\pinger\packages\Newtonsoft.Json.8.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\examples\gui-example\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
