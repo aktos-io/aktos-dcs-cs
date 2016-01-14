@@ -238,7 +238,7 @@ namespace aktos_dcs_cs
         }
         public virtual void receive(Dictionary<string, object> msg)
         {
-            Console.WriteLine("Actor received a message: {0}", msg);
+            //Console.WriteLine("Actor received a message: {0}", msg);
         }
         public void send(object msg)
         {
