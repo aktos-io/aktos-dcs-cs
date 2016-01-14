@@ -8,7 +8,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Reflection; 
+using System.Reflection;
+using System.Threading;
 
 namespace aktos_dcs_cs
 {
@@ -111,9 +112,8 @@ namespace aktos_dcs_cs
         BackgroundWorker action_worker;
         List<List<string>> filter_history = new List<List<string>>();
         public delegate void msg_callback(Dictionary<string, object> msg);
-
-        public string actor_id; 
-
+        public string actor_id;
+        public SynchronizationContext syncContext;
 
         public Actor()
         {
@@ -121,7 +121,7 @@ namespace aktos_dcs_cs
             action_worker = new BackgroundWorker();
             action_worker.DoWork += Action_DoWork;
             action_worker.RunWorkerAsync();
-            actor_id = pub.actor_id; 
+            actor_id = pub.actor_id;
         }
 
         private void Action_DoWork(object sender, DoWorkEventArgs e)
@@ -162,7 +162,11 @@ namespace aktos_dcs_cs
                                 BindingFlags.Instance | BindingFlags.NonPublic).GetValue(this);
                             foreach (var handler in event_delegate.GetInvocationList())
                             {
-                                handler.Method.Invoke(handler.Target, new object[] { ((JObject)payload_dict[key]).ToObject<Dictionary<string, object>>() });
+                             
+                                syncContext.Post(new SendOrPostCallback((o) => {
+                                    handler.Method.Invoke(handler.Target,
+                                        new object[] { ((JObject)payload_dict[key]).ToObject<Dictionary<string, object>>() });
+                                }), null);
                             }
                         }
                         catch
