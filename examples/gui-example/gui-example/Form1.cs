@@ -7,7 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using aktos_dcs_cs; 
+using aktos_dcs_cs;
+using System.Threading;
 
 namespace gui_example
 {
@@ -22,20 +23,14 @@ namespace gui_example
         {
             InitializeComponent();
             dcs.event_PingMessage += handle_PingMessage;
+            dcs.syncContext = SynchronizationContext.Current;
         }
 
         private void handle_PingMessage(Dictionary<string, object> msg)
         {
-            string received_text = (string)msg["text"];
-
-            /*
-            if (label1.InvokeRequired)
-            {
-                label1.Invoke(new MethodInvoker(delegate { label1.Text = received_text; }));
-            }
-            */
-            label1.Text = received_text;
+            label1.Text = (string)msg["text"];
         }
+
         private void button1_Click(object sender, EventArgs e)
         {
             dcs.send_PongMessage(textBox1.Text); 

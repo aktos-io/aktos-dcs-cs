@@ -113,7 +113,7 @@ namespace aktos_dcs_cs
         List<List<string>> filter_history = new List<List<string>>();
         public delegate void msg_callback(Dictionary<string, object> msg);
         public string actor_id;
-        private SynchronizationContext syncContext;
+        public SynchronizationContext syncContext;
 
         public Actor()
         {
@@ -122,7 +122,6 @@ namespace aktos_dcs_cs
             action_worker.DoWork += Action_DoWork;
             action_worker.RunWorkerAsync();
             actor_id = pub.actor_id;
-            syncContext = AsyncOperationManager.SynchronizationContext;
         }
 
         private void Action_DoWork(object sender, DoWorkEventArgs e)
@@ -164,7 +163,7 @@ namespace aktos_dcs_cs
                             foreach (var handler in event_delegate.GetInvocationList())
                             {
                              
-                                syncContext.Send(new SendOrPostCallback((o) => {
+                                syncContext.Post(new SendOrPostCallback((o) => {
                                     handler.Method.Invoke(handler.Target,
                                         new object[] { ((JObject)payload_dict[key]).ToObject<Dictionary<string, object>>() });
                                 }), null);
