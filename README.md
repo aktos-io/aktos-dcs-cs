@@ -61,5 +61,7 @@ There are 2 way of usage `aktos_dcs_cs.Actor` in your application.
           MyCommunicator comm = new MyCommunicator(); 
           comm.event_SUBJECT += handle_SUBJECT; 
           
+6. Send any message to others via `comm` object's `send()` method, as `comm.send(object)`. 
+          
 
 **Note: DO_NOT perform blocker operations in receiver methods.**
