@@ -110,6 +110,8 @@ namespace aktos_dcs_cs
         ActorPublisher pub = new ActorPublisher();
         BackgroundWorker action_worker;
         List<List<string>> filter_history = new List<List<string>>();
+        public delegate void msg_callback(Dictionary<string, object> msg);
+
         public string actor_id; 
 
 
@@ -152,8 +154,22 @@ namespace aktos_dcs_cs
                     }
                     catch (Exception e)
                     {
-                        //Console.WriteLine("exception: {0}", e); 
-                        receive(msg_dict);
+                        try
+                        {
+                            string event_name = "event_" + key;
+                            EventInfo handler_event = this.GetType().GetEvent(event_name);
+                            var event_delegate = (MulticastDelegate)this.GetType().GetField(event_name, 
+                                BindingFlags.Instance | BindingFlags.NonPublic).GetValue(this);
+                            foreach (var handler in event_delegate.GetInvocationList())
+                            {
+                                handler.Method.Invoke(handler.Target, new object[] { ((JObject)payload_dict[key]).ToObject<Dictionary<string, object>>() });
+                            }
+                        }
+                        catch
+                        {
+                            //Console.WriteLine("exception: {0}", e); 
+                            receive(msg_dict);
+                        }
                     }
                 }
             }

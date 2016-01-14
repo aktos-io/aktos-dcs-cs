@@ -16,12 +16,12 @@ namespace gui_example
     **/
     public partial class Form1 : Form
     {
-        ExamplePinger comm = new ExamplePinger(); 
+        ExamplePinger dcs = new ExamplePinger(); 
 
         public Form1()
         {
             InitializeComponent();
-            comm.event_PingMessage += handle_PingMessage; 
+            dcs.event_PingMessage += handle_PingMessage;
         }
 
         private void handle_PingMessage(Dictionary<string, object> msg)
@@ -35,15 +35,13 @@ namespace gui_example
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            comm.send_PongMessage(textBox1.Text); 
+            dcs.send_PongMessage(textBox1.Text); 
         }
 
     }
     class ExamplePinger : Actor
     {
-        public delegate void msg_callback(Dictionary<string, object> msg);
         public event msg_callback event_PingMessage;
-
         public void send_PongMessage(string msg_json)
         {
             string msg_ser = string.Format(@"
@@ -53,21 +51,6 @@ namespace gui_example
             ", msg_json);
             send(msg_ser);
         }
-
-        public override void action()
-        {
-            // do your background work here
-            while (true)
-            {
-                Console.WriteLine("Pinger is in action! ");
-                System.Threading.Thread.Sleep(2000);
-            }
-        }
-        public void handle_PingMessage(Dictionary<string, object> msg)
-        {
-            if (event_PingMessage != null) event_PingMessage(msg);
-        }
-
     }
 
 }
