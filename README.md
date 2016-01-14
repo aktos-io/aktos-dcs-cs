@@ -27,6 +27,7 @@ This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platfo
 6. Prevent your program from ending. 
    
 > Add something that will block your main loop's execution (like "Press a key to continue" line) or if your application is a GUI application, it probably has its own main loop, which will suffice. You may also simply add `Actor.wait_all()` at the end of program, which is a [forever sleeping loop under the hood](https://github.com/ceremcem/aktos-dcs-cs/blob/master/aktos-dcs-cs/actor.cs#L247-L253). 
+
 7. See your objects are messaging to each other. 
 
 # Creating and using `Actor` based classes
