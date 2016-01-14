@@ -27,11 +27,14 @@ namespace gui_example
         private void handle_PingMessage(Dictionary<string, object> msg)
         {
             string received_text = (string)msg["text"];
+
+            /*
             if (label1.InvokeRequired)
             {
                 label1.Invoke(new MethodInvoker(delegate { label1.Text = received_text; }));
             }
-            // do any other work here
+            */
+            label1.Text = received_text;
         }
         private void button1_Click(object sender, EventArgs e)
         {
