@@ -47,8 +47,7 @@ There are 2 way of usage `aktos_dcs_cs.Actor` in your application.
 
 ### 2. If you need to use communicator objects in another class 
 1. Create a class (`MyCommunicator`) based on `Actor` which will serve your `another class` as a communicator object (like in [the example](https://github.com/ceremcem/aktos-dcs-cs/blob/master/examples/gui-example/gui-example/Form1.cs#L42-L54)) 
-2. In your communicator class, define events as ` public event msg_callback event_SUBJECT;`
-3. Any message which has the `SUBJECT` subject will trigger this event. 
+2. In your communicator class, define events as ` public event msg_callback event_SUBJECT;`. Any message which has the `SUBJECT` subject will trigger this event. 
 4. Define a handler in your `another class` that will handle messages about `SUBJECT`, preferably define them as 
       
         private void handle_SUBJECT(Dictionary<string, object> msg)
