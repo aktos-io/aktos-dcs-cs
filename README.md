@@ -21,14 +21,14 @@ This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platfo
 2. Add `aktos-dcs-cs` references in your project. 
    1. In "Solution Explorer", click `Add -> Solution`, browse to select `aktos-dcs-cs/aktos-dcs-cs/aktos-dcs-cs.csproj`
    2. In "Solution Explorer", in your new project, click "add references", navigate to "projects/solution" on the left bar, add "aktos_dcs_cs"
-4. In your project, add `using aktos_dcs_cs;` line at the top of the file. 
+3. In your project, add `using aktos_dcs_cs;` line at the top of the file. 
 
-5. Create and use classes that are using `Actor`s. (see below)
-6. Prevent your program from ending. 
+4. Create and use classes that are using `Actor`s. (see below)
+5. Prevent your program from ending. 
    
-> Add something that will block your main loop's execution (like "Press a key to continue" line) or if your application is a GUI application, it probably has its own main loop, which will suffice. You may also simply add `Actor.wait_all()` at the end of program, which is a [forever sleeping loop under the hood](https://github.com/ceremcem/aktos-dcs-cs/blob/master/aktos-dcs-cs/actor.cs#L247-L253). 
+      > Add something that will block your main loop's execution (like "Press a key to continue" line) or if your application is a GUI application, it probably has its own main loop, which will suffice. You may also simply add `Actor.wait_all()` at the end of program, which is a [forever sleeping loop under the hood](https://github.com/ceremcem/aktos-dcs-cs/blob/master/aktos-dcs-cs/actor.cs#L247-L253). 
 
-7. See your objects are messaging to each other. 
+6. See your objects are messaging with each other. 
 
 # Creating and using `Actor` based classes
 There are 2 way of usage `aktos_dcs_cs.Actor` in your application. 
