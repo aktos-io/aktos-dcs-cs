@@ -17,13 +17,13 @@ namespace gui_example
     **/
     public partial class Form1 : Form
     {
-        ExamplePinger dcs = new ExamplePinger(); 
+        ExamplePinger dcs; 
 
         public Form1()
         {
             InitializeComponent();
+            dcs = new ExamplePinger(); 
             dcs.event_PingMessage += handle_PingMessage;
-            dcs.syncContext = SynchronizationContext.Current;
         }
 
         private void handle_PingMessage(Dictionary<string, object> msg)
