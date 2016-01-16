@@ -17,7 +17,9 @@ namespace gui_example
     **/
     public partial class Form1 : Form
     {
-        ExamplePinger dcs; 
+        // WARNING: You MUST initialize Actor object in constructor! Unlike below: 
+        //ExamplePinger dcs = new ExamplePinger();  // DO NOT DO THIS
+        ExamplePinger dcs;
 
         public Form1()
         {
@@ -40,14 +42,14 @@ namespace gui_example
     class ExamplePinger : Actor
     {
         public event msg_callback event_PingMessage;
-        public void send_PongMessage(string msg_json)
+        public void send_PongMessage(string text_msg)
         {
-            string msg_ser = string.Format(@"
+            string json_str = string.Format(@"
                 {{""PongMessage"": 
                     {{""text"": ""{0}""}}
                 }}
-            ", msg_json);
-            send(msg_ser);
+            ", text_msg);
+            send(json_str);
         }
     }
 

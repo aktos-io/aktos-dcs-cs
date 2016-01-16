@@ -122,7 +122,6 @@ namespace aktos_dcs_cs
             action_worker.DoWork += Action_DoWork;
             action_worker.RunWorkerAsync();
             actor_id = pub.actor_id;
-
             syncContext = SynchronizationContext.Current;
         }
 
