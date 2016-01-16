@@ -24,7 +24,7 @@ namespace gui_example
         public Form1()
         {
             InitializeComponent();
-            dcs = new ExamplePinger(); 
+            dcs = new ExamplePinger();  // You MUST initialize Actor objects in constructor
             dcs.event_PingMessage += handle_PingMessage;
         }
 
