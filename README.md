@@ -2,7 +2,7 @@
 
 This is the C# port of [aktos-dcs](https://github.com/ceremcem/aktos-dcs) platform. 
 
-# Testing 
+# Using Examples 
 
 1. Download and install [aktos-dcs](https://github.com/ceremcem/aktos-dcs)
 * Between C# and Python applications: 
